@@ -113,9 +113,111 @@ def BisectorLineEquation(N0, Ni, Nj):
 	return p_inter[0], (p_inter + cross)[0]
 
 
-def EvalStructure(rho, tau, q, seeds=None):
 
-	#seeds = GenerateSeeds(rho, q)
+def GridCellEnclosing(q):
+	"""Finds the coarse grid cell containing q. This grid refers the to seed grid not voxelization!!
+
+		Parameters
+		----------
+		q: np.array([x,y,z])
+			query point
+		returns : Cell
+	   """
+
+	return 0
+
+
+def TwoRingNeighborhood(cell):
+	"""Returns all the cells in 2-ring neighborhood of the cell. Possibly 3D shape - diamond
+
+		Parameters
+		----------
+		cell: Cell
+			a cell in the seed grid
+		returns : Cell list
+	   """
+
+	neighborhood =[]
+
+	return neighborhood
+
+
+
+# Noli, your magic goes here
+def SubdivideCell(rho, center, length):
+	"""Returns all seeds in the cell
+
+		Parameters
+		----------
+		rho: float
+			seed density
+		center: np.array([x,y,z])
+			center of the cell
+		length: float
+			cell length
+		returns : seed list
+	   """
+
+	seeds = []
+
+	return seeds
+
+
+
+def GatherSeeds(rho, q):
+	"""Returns all seeds that can influence q
+
+		Parameters
+		----------
+		rho: float
+			seed density
+		q: np.array([x,y,z])
+			query point
+		returns : seed list
+	   """
+
+	N = []
+	visited = []
+
+	cq = GridCellEnclosing(q)
+	closest = np.array([np.inf, np.inf,np.inf])
+
+	neighborhood = TwoRingNeighborhood(cq)
+
+	for cell in neighborhood:
+		visited.append(cell)
+		seeds = SubdivideCell(rho, cell.center, cell.length)
+		N.extend(seeds)
+		for s in seeds:
+			if (np.linalg.norm(closest-q) > np.linalg.norm(s-q)):
+				closest = s
+
+	cs = GridCellEnclosing(closest)
+	neighborhood = TwoRingNeighborhood(cs)
+	for cell in neighborhood:
+		if cell not in visited:
+			seeds = SubdivideCell(rho, cell.center, cell.length)
+			N.extend(seeds)
+
+	return N
+
+
+
+def EvalStructure(rho, tau, q, seeds=None):
+	"""Returns 1 if q is in a beam and 0 otherwise
+
+			Parameters
+			----------
+			rho: float
+				seed density
+			tau: float
+				beam radius
+			q: np.array([x,y,z])
+				query point
+			returns : {0,1}
+		   """
+
+	#seeds = GatherSeeds(rho, q)
 	accept = False
 
 	#for debug
