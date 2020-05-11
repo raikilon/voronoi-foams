@@ -26,6 +26,8 @@ def TestEvalStructure():
 	seeds = dgen.CreateHoneycomd2D(size, 4)
 	qs = dgen.CreateGrid2D(size, resolution)
 
+	# ideal input - 2 layers  of seeds
+
 	for i in range(resolution**2):
 		q = qs[i]
 
