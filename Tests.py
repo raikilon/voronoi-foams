@@ -1,7 +1,7 @@
 import numpy as np
 import Voronoi as voronoi
 import DebugPlot as dplot
-import DanatGeneration as dgen
+import DataGeneration as dgen
 
 
 def CheckValues(res, GT, func):
@@ -17,13 +17,13 @@ def CheckValues(res, GT, func):
 def TestEvalStructure():
 
 	rho = 1
-	tau = 0.11
+	tau = 0.05
 
 	beam_points = []
 	size = 1
-	resolution = 10
+	resolution = 100
 
-	seeds = dgen.CreateGrid2D(size, 2)
+	seeds = dgen.CreateHoneycomd2D(size, 4)
 	qs = dgen.CreateGrid2D(size, resolution)
 
 	for i in range(resolution**2):

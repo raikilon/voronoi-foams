@@ -31,3 +31,23 @@ def CreateGrid2D(size, resolution):
 			points.append(np.array([xv[i, j], yv[i, j], 0]))
 
 	return points
+
+
+
+def CreateHoneycomd2D(size, resolution):
+
+	points = []
+	nx = (resolution + 1)
+	ny = (resolution + 1)
+	x = np.linspace(0, size, num=nx, endpoint=True)
+	y = np.linspace(0, size, num=ny, endpoint=True)
+	xv, yv = np.meshgrid(x, y)
+	dist = size / resolution
+
+	for i in range(nx):
+		for j in range(ny):
+			offset = 0.5 * dist * (i%2)
+			points.append(np.array([xv[i, j] + offset, yv[i, j], 0]))
+
+	return points
+

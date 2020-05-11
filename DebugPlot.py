@@ -25,6 +25,7 @@ def PlotSeedsAndBeamPoints(beam_points, seeds):
 
 	plt.scatter(bx, by, c='k')
 	plt.scatter(sx, sy, c='r')
+	plt.savefig("debug.png")
 	plt.show()
 
 
