@@ -1,11 +1,8 @@
 import numpy as np
 
 
-
-
 def ClosestPointOnALine(q, bl):
-
-	"""Computes the closeet point between a line and a point in 3D
+    """Computes the closeet point between a line and a point in 3D
 
               Parameters
             ----------
@@ -13,32 +10,29 @@ def ClosestPointOnALine(q, bl):
                 the point q in the paper
             bl: np.array([x,y,z])
                 the line bl from the paper
-          	return : np.array([x,y,z])
-				pl of the paper, closest point on the line to q
+              return : np.array([x,y,z])
+                pl of the paper, closest point on the line to q
            """
 
-	# based on https://math.stackexchange.com/questions/1905533/find-perpendicular-distance-from-point-to-line-in-3d
+    # based on https://math.stackexchange.com/questions/1905533/find-perpendicular-distance-from-point-to-line-in-3d
 
+    b = bl[0]
+    c = bl[1]
 
-	b = bl[0]
-	c = bl[1]
+    vbc = c - b
+    dbc = vbc / np.linalg.norm(vbc)
 
-	vbc = c-b
-	dbc = vbc / np.linalg.norm(vbc)
+    vqb = q - b
 
-	vqb = q - b
+    t = np.dot(vqb, dbc)
 
-	t = np.dot(vqb, dbc)
+    pl = b + t * dbc
 
-	pl = b + t * dbc
-
-	return pl
-
+    return pl
 
 
 def BisectorPlane(N1, N2):
-
-	"""Finds bisector plane between two 3D points
+    """Finds bisector plane between two 3D points
 
               Parameters
             ----------
@@ -46,28 +40,26 @@ def BisectorPlane(N1, N2):
                 first seed
             N2: np.array([x,y,z])
                 second seed
-          	return : np.array([a,b,c,d])
-				coefficients of the bisecting plane
+              return : np.array([a,b,c,d])
+                coefficients of the bisecting plane
            """
 
-	# like we did in the 3D scanning homework
+    # like we did in the 3D scanning homework
 
-	normp = N1-N2
-	midp = np.mean([N1, N2], axis=0)
+    normp = N1 - N2
+    midp = np.mean([N1, N2], axis=0)
 
-	a = normp[0]
-	b = normp[1]
-	c = normp[2]
+    a = normp[0]
+    b = normp[1]
+    c = normp[2]
 
-	d = -(a * midp[0] + b * midp[1] + c * midp[2])
+    d = -(a * midp[0] + b * midp[1] + c * midp[2])
 
-	return a, b, c, d
-
+    return a, b, c, d
 
 
 def BisectorLineEquation(N0, Ni, Nj):
-
-	"""Finds bisector line between two planes 
+    """Finds bisector line between two planes
 
               Parameters
             ----------
@@ -77,174 +69,190 @@ def BisectorLineEquation(N0, Ni, Nj):
                 second seed
             Nj: np.array([x,y,z])
                 third seed
-          	return : np.array([a,b,c,d])
-				two points on the line bl
+              return : np.array([a,b,c,d])
+                two points on the line bl
            """
 
-	bp1 = BisectorPlane(N0, Ni)
-	bp2 = BisectorPlane(Ni, Nj)
+    bp1 = BisectorPlane(N0, Ni)
+    bp2 = BisectorPlane(Ni, Nj)
 
-	 #based on   https://stackoverflow.com/questions/48126838/plane-plane-intersection-in-python     
+    # based on   https://stackoverflow.com/questions/48126838/plane-plane-intersection-in-python
 
-	np1 = bp1[:3]
-	np2 = bp2[:3]
+    np1 = bp1[:3]
+    np2 = bp2[:3]
 
-	cross = np.cross(np1, np2)
+    cross = np.cross(np1, np2)
 
-	#First edge case, this means the bisecting planes are parallel to each other, so there is no intersection between them
-	# This happens when we test 3 seeds that next to each other in a row/col on a regular grid
-	if (cross==np.array([0, 0, 0])).all():
-		#print("weird case, Seeds: {}, {}, {}".format(N0, Ni, Nj))
-		#print("bisecting planes: {}, {}".format(bp1, bp2))
-		#print("bisecting line: {}".format(bl))
-		return None
+    # First edge case, this means the bisecting planes are parallel to each other, so there is no intersection between them
+    # This happens when we test 3 seeds that next to each other in a row/col on a regular grid
+    if (cross == np.array([0, 0, 0])).all():
+        # print("weird case, Seeds: {}, {}, {}".format(N0, Ni, Nj))
+        # print("bisecting planes: {}, {}".format(bp1, bp2))
+        # print("bisecting line: {}".format(bl))
+        return None
 
+    A = np.array([np1, np2, cross])
+    d = np.array([-bp1[3], -bp2[3], 0.]).reshape(3, 1)
 
-	A = np.array([np1, np2, cross])
-	d = np.array([-bp1[3], -bp2[3], 0.]).reshape(3,1)
+    # could add np.linalg.det(A) == 0 test to prevent linalg.solve throwing error
 
-	# could add np.linalg.det(A) == 0 test to prevent linalg.solve throwing error
+    p_inter = np.linalg.solve(A, d).T
 
-	p_inter = np.linalg.solve(A, d).T
+    # return unit vector
+    cross = cross / np.linalg.norm(cross)
 
-	#return unit vector 
-	cross = cross / np.linalg.norm(cross)
-
-	return p_inter[0], (p_inter + cross)[0]
-
+    return p_inter[0], (p_inter + cross)[0]
 
 
 def GridCellEnclosing(q):
-	"""Finds the coarse grid cell containing q. This grid refers the to seed grid not voxelization!!
+    """Finds the coarse grid cell containing q. This grid refers the to seed grid not voxelization!!
 
-		Parameters
-		----------
-		q: np.array([x,y,z])
-			query point
-		returns : Cell
-	   """
+        Parameters
+        ----------
+        q: np.array([x,y,z])
+            query point
+        returns : Cell
+       """
 
-	return 0
+    return 0
 
 
 def TwoRingNeighborhood(cell):
-	"""Returns all the cells in 2-ring neighborhood of the cell. Possibly 3D shape - diamond
+    """Returns all the cells in 2-ring neighborhood of the cell. Possibly 3D shape - diamond
 
-		Parameters
-		----------
-		cell: Cell
-			a cell in the seed grid
-		returns : Cell list
-	   """
+        Parameters
+        ----------
+        cell: Cell
+            a cell in the seed grid
+        returns : Cell list
+       """
 
-	neighborhood =[]
+    neighborhood = []
 
-	return neighborhood
-
+    return neighborhood
 
 
 # Noli, your magic goes here
-def SubdivideCell(rho, center, length):
-	"""Returns all seeds in the cell
+def SubdivideCell(rho, origin_square, length_square, seeds=[]):
+    """Returns all seeds in the cell
 
-		Parameters
-		----------
-		rho: float
-			seed density
-		center: np.array([x,y,z])
-			center of the cell
-		length: float
-			cell length
-		returns : seed list
-	   """
+        Parameters
+        ----------
+        rho: float
+            seed density
+        center: np.array([x,y,z])
+            center of the cell
+        length: float
+            cell length
+        returns : seed list
+       """
+    length_halfsquare = 0.5 * length_square
+    target_seeds = (length_square ** 3) * rho
+    if target_seeds <= 8:
+        # 1st case: the cell is a leaf
+        shuffled_idx = np.random.permutation(8)
+        min_samples = int(np.floor(target_seeds))
+        proba_last = target_seeds - min_samples
+        for i in range(min_samples):
+            seeds.append(__sample_new_point(origin_square, length_halfsquare, shuffled_idx[i]))
+        if np.random.random() <= proba_last and min_samples < 8:
+            seeds.append(__sample_new_point(origin_square, length_halfsquare, shuffled_idx[min_samples]))
+    else:
+        # 2nd case: recursive call
+        for delta in np.ndindex(2, 2, 2):
+            offset = np.array(delta, dtype=float)
+            origin_subsquare = origin_square + offset * length_halfsquare
+            SubdivideCell(rho, origin_subsquare, length_halfsquare, seeds)
 
-	seeds = []
+    return seeds
 
-	return seeds
 
+def __sample_new_point(origin_square, length_halfsquare, subidx):
+    dx, dy, dz = subidx % 2, subidx // 2, subidx // 2
+    offset = length_halfsquare * np.array([dx, dy, dz], dtype=float)
+    random_offset = np.array([np.random.random(), np.random.random(), np.random.random()])
+    return origin_square + random_offset * length_halfsquare + offset
 
 
 def GatherSeeds(rho, q):
-	"""Returns all seeds that can influence q
+    """Returns all seeds that can influence q
 
-		Parameters
-		----------
-		rho: float
-			seed density
-		q: np.array([x,y,z])
-			query point
-		returns : seed list
-	   """
+        Parameters
+        ----------
+        rho: float
+            seed density
+        q: np.array([x,y,z])
+            query point
+        returns : seed list
+       """
 
-	N = []
-	visited = []
+    N = []
+    visited = []
 
-	cq = GridCellEnclosing(q)
-	closest = np.array([np.inf, np.inf,np.inf])
+    cq = GridCellEnclosing(q)
+    closest = np.array([np.inf, np.inf, np.inf])
 
-	neighborhood = TwoRingNeighborhood(cq)
+    neighborhood = TwoRingNeighborhood(cq)
 
-	for cell in neighborhood:
-		visited.append(cell)
-		seeds = SubdivideCell(rho, cell.center, cell.length)
-		N.extend(seeds)
-		for s in seeds:
-			if (np.linalg.norm(closest-q) > np.linalg.norm(s-q)):
-				closest = s
+    for cell in neighborhood:
+        visited.append(cell)
+        seeds = SubdivideCell(rho, cell.center, cell.length)
+        N.extend(seeds)
+        for s in seeds:
+            if (np.linalg.norm(closest - q) > np.linalg.norm(s - q)):
+                closest = s
 
-	cs = GridCellEnclosing(closest)
-	neighborhood = TwoRingNeighborhood(cs)
-	for cell in neighborhood:
-		if cell not in visited:
-			seeds = SubdivideCell(rho, cell.center, cell.length)
-			N.extend(seeds)
+    cs = GridCellEnclosing(closest)
+    neighborhood = TwoRingNeighborhood(cs)
+    for cell in neighborhood:
+        if cell not in visited:
+            seeds = SubdivideCell(rho, cell.center, cell.length)
+            N.extend(seeds)
 
-	return N
-
+    return N
 
 
 def EvalStructure(rho, tau, q, seeds=None):
-	"""Returns 1 if q is in a beam and 0 otherwise
+    """Returns 1 if q is in a beam and 0 otherwise
 
-			Parameters
-			----------
-			rho: float
-				seed density
-			tau: float
-				beam radius
-			q: np.array([x,y,z])
-				query point
-			returns : {0,1}
-		   """
+            Parameters
+            ----------
+            rho: float
+                seed density
+            tau: float
+                beam radius
+            q: np.array([x,y,z])
+                query point
+            returns : {0,1}
+           """
 
-	#seeds = GatherSeeds(rho, q)
-	accept = False
+    # seeds = GatherSeeds(rho, q)
+    accept = False
 
-	#for debug
+    # for debug
 
-	bl_list = []
+    bl_list = []
 
+    N = len(seeds)
+    for i in range(1, N):
+        for j in range(i + 1, N):
+            bl = BisectorLineEquation(seeds[0], seeds[i], seeds[j])
+            if bl is None:
+                continue
 
-	N = len(seeds)
-	for i in range(1, N):
-		for j in range(i+1, N):
-			bl = BisectorLineEquation(seeds[0], seeds[i], seeds[j])
-			if bl is None:
-				continue
+            bl_list.append(bl)
+            pl = ClosestPointOnALine(q, bl)
+            d = np.linalg.norm(pl - q)
+            # print("distance d:{} from q:{} to pl:{} on line bl:{}".format(d, q, pl, bl))
+            # print("For seeds: {}, {}, {}".format(seeds[0], seeds[i], seeds[j]))
+            if (np.linalg.norm(pl - q) < tau):
+                accept = True
+                for k in range(1, N):
+                    if (np.linalg.norm(seeds[0] - pl) > np.linalg.norm(seeds[k] - pl)):
+                        accept = False
+                        break
 
-			bl_list.append(bl)
-			pl = ClosestPointOnALine(q, bl)
-			d = np.linalg.norm(pl-q)
-			#print("distance d:{} from q:{} to pl:{} on line bl:{}".format(d, q, pl, bl))
-			#print("For seeds: {}, {}, {}".format(seeds[0], seeds[i], seeds[j]))
-			if (np.linalg.norm(pl-q) < tau):
-				accept = True
-				for k in range(1,N):
-					if (np.linalg.norm(seeds[0]-pl) > np.linalg.norm(seeds[k]-pl)):
-						accept = False
-						break
+                if (accept):
+                    return 1
 
-				if (accept):
-					return 1
-
-	return 0
+    return 0
