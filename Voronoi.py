@@ -135,8 +135,7 @@ def TwoRingNeighborhood(cell):
     for ix in range(-2, 3):
         for iy in range(-2, 3):
             for iz in range(-2, 3):
-                if not ((abs(ix) == 2 and abs(iy) == 2) or (abs(ix) == 2 and abs(iz) == 2) or (
-                        abs(iy) == 2 and abs(iz) == 2)):
+                if abs(ix) + abs(iy) + abs(iz) <= 3:
                     neighborhood.append(Cell(np.array([x + (l * ix), y + (l * iy), z + (l * iz)]), l))
     return neighborhood
 
