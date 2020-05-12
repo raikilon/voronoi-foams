@@ -1,6 +1,7 @@
 import numpy as np
 from subdivision import SubdivideCell
 
+
 def ClosestPointOnALine(q, bl):
     """Computes the closeet point between a line and a point in 3D
 
@@ -104,17 +105,19 @@ def BisectorLineEquation(N0, Ni, Nj):
     return p_inter[0], (p_inter + cross)[0]
 
 
-def GridCellEnclosing(q):
+def GridCellEnclosing(q, coarse_level_length=2):
     """Finds the coarse grid cell containing q. This grid refers the to seed grid not voxelization!!
 
         Parameters
         ----------
         q: np.array([x,y,z])
             query point
+        coarse_level_length: size of the coarse cell
         returns : Cell
        """
-
-    return 0
+    center = ((q // coarse_level_length) * coarse_level_length) + coarse_level_length / 2
+    cell = Cell(center, coarse_level_length)
+    return cell
 
 
 def TwoRingNeighborhood(cell):
@@ -126,9 +129,15 @@ def TwoRingNeighborhood(cell):
             a cell in the seed grid
         returns : Cell list
        """
-
+    x, y, z = cell.center
+    l = cell.length
     neighborhood = []
-
+    for ix in range(-2, 3):
+        for iy in range(-2, 3):
+            for iz in range(-2, 3):
+                if not ((abs(ix) == 2 and abs(iy) == 2) or (abs(ix) == 2 and abs(iz) == 2) or (
+                        abs(iy) == 2 and abs(iz) == 2)):
+                    neighborhood.append(Cell(np.array([x + (l * ix), y + (l * iy), z + (l * iz)]), l))
     return neighborhood
 
 
@@ -214,3 +223,9 @@ def EvalStructure(rho, tau, q, seeds=None):
                     return 1
 
     return 0
+
+
+class Cell:
+    def __init__(self, center, length):
+        self.center = center
+        self.length = length
