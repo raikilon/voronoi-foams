@@ -138,7 +138,7 @@ def EvalStructure(rho, tau, q, seeds = None, bl_list = None):
             d = np.linalg.norm(pl - q)
             # print("distance d:{} from q:{} to pl:{} on line bl:{}".format(d, q, pl, bl))
             # print("For seeds: {}, {}, {}".format(seeds[0], seeds[i], seeds[j]))
-            if (np.linalg.norm(pl - q) < tau):
+            if (np.linalg.norm(pl - q) <= tau):
                 accept = True
                 for k in range(1, N):
                     if (np.linalg.norm(seeds[0] - pl) > np.linalg.norm(seeds[k] - pl)):

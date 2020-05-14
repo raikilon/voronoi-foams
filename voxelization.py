@@ -5,7 +5,7 @@ from utils import visualize_cloud
 
 def voxelize_mesh():
     mesh = load_mesh("models/cube.obj")
-    grid = pymesh.VoxelGrid(0.05, mesh.dim)
+    grid = pymesh.VoxelGrid(0.01, mesh.dim)
     grid.insert_mesh(mesh)
     grid.create_grid()
     out_mesh = grid.mesh

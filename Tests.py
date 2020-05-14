@@ -8,6 +8,7 @@ from joblib import Parallel, delayed
 import multiprocessing
 import pymesh
 from utils import save_cube_union
+from utils import save_list_cube
 
 
 def CheckValues(res, GT, func):
@@ -62,6 +63,7 @@ def TestEvalStructureRandomSeed():
     rho = 16
     tau = 0.05
     voxel_centers = np.load("models/cube_voxels.npy")
+    # size = voxel_centers[0] - voxel_centers[1]
     seeds = GatherSeeds(rho, np.array([0, 0, 0]))
     # beam_points = []
     num_cores = multiprocessing.cpu_count()
@@ -69,8 +71,8 @@ def TestEvalStructureRandomSeed():
     beam_points = Parallel(n_jobs=num_cores)(delayed(compute_q)(i, rho, tau) for i in voxel_centers)
     beam_points = list(filter(any, beam_points))
 
-    save_cube_union(seeds, tau, "final_seeds")
-    save_cube_union(beam_points, tau, "final_voxels")
+    save_list_cube(seeds, tau, "final_seeds")
+    save_list_cube(beam_points, tau, "final_voxels")
 
     visualize_cell(seeds, beam_points)
 

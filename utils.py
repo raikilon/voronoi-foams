@@ -1,6 +1,6 @@
 import open3d as o3d
 import pymesh
-
+import numpy as np
 
 def visualize_cloud(points):
     """
@@ -30,3 +30,14 @@ def save_cube_union(centers, tau, name):
         meshes.append({"mesh": box})
     csg = pymesh.CSGTree({"union": meshes})
     pymesh.save_mesh("models/{}.obj".format(name), csg.mesh)
+
+
+def save_list_cube(centers, tau, name):
+    vertices = []
+    faces = []
+    for s in centers:
+        box = pymesh.generate_box_mesh(s - tau / 2, s + tau / 2)
+        vertices.extend(box.vertices)
+        faces.extend(box.faces + len(faces))
+    mesh = pymesh.form_mesh(np.array(vertices), np.array(faces))
+    pymesh.save_mesh("models/{}.obj".format(name), mesh)
