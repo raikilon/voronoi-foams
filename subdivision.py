@@ -25,6 +25,7 @@ def SubdivideCell(rho, origin_square, length_square, seeds=[]):
             cell length
         returns : seed list
        """
+    np.random.seed(100)
     length_halfsquare = 0.5 * length_square
     target_seeds = (length_square ** 3) * rho
     if target_seeds <= 8:
@@ -49,6 +50,7 @@ def SubdivideCell(rho, origin_square, length_square, seeds=[]):
 
 
 def __sample_new_point(origin_square, length_halfsquare, subidx):
+    np.random.seed(100)
     if subidx == 0:
         dx, dy, dz = [1, 1, 1]
     elif subidx == 1:
@@ -70,7 +72,7 @@ def __sample_new_point(origin_square, length_halfsquare, subidx):
     return origin_square + random_offset * (length_halfsquare / 2) + offset
 
 
-def GridCellEnclosing(q, coarse_level_length=2):
+def GridCellEnclosing(q, coarse_level_length=1):
     """Finds the coarse grid cell containing q. This grid refers the to seed grid not voxelization!!
 
         Parameters
@@ -80,7 +82,8 @@ def GridCellEnclosing(q, coarse_level_length=2):
         coarse_level_length: size of the coarse cell
         returns : Cell
        """
-    center = ((q // coarse_level_length) * coarse_level_length) + coarse_level_length / 2
+    #center = ((q // coarse_level_length) * coarse_level_length) + coarse_level_length / 2
+    center = np.round(q / coarse_level_length) * coarse_level_length
     cell = Cell(center, coarse_level_length)
     return cell
 
@@ -123,7 +126,7 @@ def GatherSeeds(rho, q):
     cq = GridCellEnclosing(q)
     closest = np.array([np.inf, np.inf, np.inf])
 
-    neighborhood = TwoRingNeighborhood(cq)
+    neighborhood = [cq] # TwoRingNeighborhood(cq)
 
     for cell in neighborhood:
         visited.append(cell)
@@ -134,7 +137,7 @@ def GatherSeeds(rho, q):
                 closest = s
 
     cs = GridCellEnclosing(closest)
-    neighborhood = TwoRingNeighborhood(cs)
+    neighborhood = [cs] #TwoRingNeighborhood(cs)
     for cell in neighborhood:
         if cell not in visited:
             seeds = SubdivideCell(rho, cell.center, cell.length, [])
