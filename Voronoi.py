@@ -1,5 +1,5 @@
 import numpy as np
-from subdivision import SubdivideCell
+from subdivision import GatherSeeds
 
 
 def ClosestPointOnALine(q, bl):
@@ -105,80 +105,6 @@ def BisectorLineEquation(N0, Ni, Nj):
     return p_inter[0], (p_inter + cross)[0]
 
 
-def GridCellEnclosing(q, coarse_level_length=2):
-    """Finds the coarse grid cell containing q. This grid refers the to seed grid not voxelization!!
-
-        Parameters
-        ----------
-        q: np.array([x,y,z])
-            query point
-        coarse_level_length: size of the coarse cell
-        returns : Cell
-       """
-    center = ((q // coarse_level_length) * coarse_level_length) + coarse_level_length / 2
-    cell = Cell(center, coarse_level_length)
-    return cell
-
-
-def TwoRingNeighborhood(cell):
-    """Returns all the cells in 2-ring neighborhood of the cell. Possibly 3D shape - diamond
-
-        Parameters
-        ----------
-        cell: Cell
-            a cell in the seed grid
-        returns : Cell list
-       """
-    x, y, z = cell.center
-    l = cell.length
-    neighborhood = []
-    for ix in range(-2, 3):
-        for iy in range(-2, 3):
-            for iz in range(-2, 3):
-                if abs(ix) + abs(iy) + abs(iz) <= 3:
-                    neighborhood.append(Cell(np.array([x + (l * ix), y + (l * iy), z + (l * iz)]), l))
-    return neighborhood
-
-
-def GatherSeeds(rho, q):
-    """Returns all seeds that can influence q
-
-        Parameters
-        ----------
-        rho: float
-            seed density
-        q: np.array([x,y,z])
-            query point
-        returns : seed list
-       """
-
-    N = []
-    visited = []
-
-    cq = GridCellEnclosing(q)
-    closest = np.array([np.inf, np.inf, np.inf])
-
-    neighborhood = TwoRingNeighborhood(cq)
-
-    for cell in neighborhood:
-        visited.append(cell)
-        seeds = SubdivideCell(rho, cell.center, cell.length, [])
-        N.extend(seeds)
-        for s in seeds:
-            if (np.linalg.norm(closest - q) > np.linalg.norm(s - q)):
-                closest = s
-
-    cs = GridCellEnclosing(closest)
-    neighborhood = TwoRingNeighborhood(cs)
-    for cell in neighborhood:
-        if cell not in visited:
-            seeds = SubdivideCell(rho, cell.center, cell.length, [])
-            N.extend(seeds)
-    index = [i for i, s in enumerate(N) if s[0] == closest[0] and s[1] == closest[1] and s[2] == closest[2]][0]
-    N.insert(0, N.pop(index))
-    return N
-
-
 def EvalStructure(rho, tau, q):
     """Returns 1 if q is in a beam and 0 otherwise
 
@@ -224,10 +150,3 @@ def EvalStructure(rho, tau, q):
     return 0
 
 
-class Cell:
-    def __init__(self, center, length):
-        self.center = center
-        self.length = length
-
-    def __eq__(self, other):
-        return self.length == other.length and self.center[0] == other.center[0] and self.center[1] == other.center[1]

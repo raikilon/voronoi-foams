@@ -32,11 +32,11 @@ def TestEvalStructure():
 		q = qs[i]
 
 		#re-arrange order, first is the nearest seed to q
-		nearest_id = dgen.FindNearestSeed(seeds, q)
-		nearest_seed = seeds.pop(nearest_id)
-		seeds.insert(0, nearest_seed)
+		# nearest_id = dgen.FindNearestSeed(seeds, q)
+		# nearest_seed = seeds.pop(nearest_id)
+		# seeds.insert(0, nearest_seed)
 
-		isBeam = voronoi.EvalStructure(rho, tau, q, seeds)
+		isBeam = voronoi.EvalStructure(rho, tau, q)
 		if isBeam:
 			beam_points.append(q)
 			print("beam point :  {}".format(q))
