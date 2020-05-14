@@ -25,10 +25,11 @@ def SubdivideCell(rho, origin_square, length_square, seeds=[]):
             cell length
         returns : seed list
        """
-    np.random.seed(100)
+
     length_halfsquare = 0.5 * length_square
     target_seeds = (length_square ** 3) * rho
     if target_seeds <= 8:
+        np.random.seed(int(abs(np.sum(origin_square)*100)))
         # 1st case: the cell is a leaf
         shuffled_idx = np.random.permutation(8)
         min_samples = int(np.floor(target_seeds))
@@ -50,7 +51,7 @@ def SubdivideCell(rho, origin_square, length_square, seeds=[]):
 
 
 def __sample_new_point(origin_square, length_halfsquare, subidx):
-    np.random.seed(100)
+    #np.random.seed(100)
     if subidx == 0:
         dx, dy, dz = [1, 1, 1]
     elif subidx == 1:
@@ -72,7 +73,7 @@ def __sample_new_point(origin_square, length_halfsquare, subidx):
     return origin_square + random_offset * (length_halfsquare / 2) + offset
 
 
-def GridCellEnclosing(q, coarse_level_length=1):
+def GridCellEnclosing(q, coarse_level_length=2):
     """Finds the coarse grid cell containing q. This grid refers the to seed grid not voxelization!!
 
         Parameters
@@ -119,7 +120,7 @@ def GatherSeeds(rho, q):
             query point
         returns : seed list
        """
-
+    #np.random.seed(100)
     N = []
     visited = []
 

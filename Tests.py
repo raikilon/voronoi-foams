@@ -60,7 +60,7 @@ def TestEvalStructure():
 
 
 def TestEvalStructureRandomSeed():
-    rho = 16
+    rho = 8
     tau = 0.05
     voxel_centers = np.load("models/cube_voxels.npy")
     # size = voxel_centers[0] - voxel_centers[1]
