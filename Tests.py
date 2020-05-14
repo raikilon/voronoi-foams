@@ -13,6 +13,17 @@ def CheckValues(res, GT, func):
 
 
 
+def TestGenData():
+	rho = 1
+	tau = 0.05
+
+	size = 1
+	resolution = 100
+
+	seeds = dgen.CreateHoneycomd3D(size, 5)
+
+	dplot.Plot3D(seeds)
+
 
 def TestEvalStructure():
 
@@ -21,28 +32,29 @@ def TestEvalStructure():
 
 	beam_points = []
 	size = 1
-	resolution = 100
+	resolution = 20
 
-	seeds = dgen.CreateHoneycomd2D(size, 4)
-	qs = dgen.CreateGrid2D(size, resolution)
 
-	# ideal input - 2 layers  of seeds
+	seeds = dgen.GenerateRandom(size, 3)
+	qs = dgen.CreateGrid3D(size, resolution)
 
-	for i in range(resolution**2):
+	for i in range(len(qs)):
 		q = qs[i]
 
 		#re-arrange order, first is the nearest seed to q
-		# nearest_id = dgen.FindNearestSeed(seeds, q)
-		# nearest_seed = seeds.pop(nearest_id)
-		# seeds.insert(0, nearest_seed)
+		nearest_id = dgen.FindNearestSeed(seeds, q)
+		nearest_seed = seeds.pop(nearest_id)
+		seeds.insert(0, nearest_seed)
 
-		isBeam = voronoi.EvalStructure(rho, tau, q)
+		bl_list = []
+		isBeam = voronoi.EvalStructure(rho, tau, q, seeds, bl_list)
 		if isBeam:
 			beam_points.append(q)
 			print("beam point :  {}".format(q))
+			#dplot.PlotBL(bl_list, seeds, q)
 
 
-	dplot.PlotSeedsAndBeamPoints(beam_points, seeds)
+	dplot.Plot3DAll(seeds, beam_points)
 
 
 def TestBisectorLineEquation():
@@ -98,7 +110,7 @@ def main():
 	#TestBisectorPlane()
 	#TestBisectorLineEquation()
 	TestEvalStructure()
-
+	#estGenData()
 
 
 

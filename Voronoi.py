@@ -104,8 +104,11 @@ def BisectorLineEquation(N0, Ni, Nj):
 
     return p_inter[0], (p_inter + cross)[0]
 
+import time
 
-def EvalStructure(rho, tau, q):
+
+
+def EvalStructure(rho, tau, q, seeds = None, bl_list = None):
     """Returns 1 if q is in a beam and 0 otherwise
 
             Parameters
@@ -119,11 +122,8 @@ def EvalStructure(rho, tau, q):
             returns : {0,1}
            """
 
-    seeds = GatherSeeds(rho, q)
-
-    # for debug
-
-    bl_list = []
+    if seeds is None:
+        seeds = GatherSeeds(rho, q)
 
     N = len(seeds)
     for i in range(1, N):
@@ -132,7 +132,8 @@ def EvalStructure(rho, tau, q):
             if bl is None:
                 continue
 
-            bl_list.append(bl)
+            if bl_list is not None:
+                bl_list.append(bl)
             pl = ClosestPointOnALine(q, bl)
             d = np.linalg.norm(pl - q)
             # print("distance d:{} from q:{} to pl:{} on line bl:{}".format(d, q, pl, bl))
@@ -146,6 +147,7 @@ def EvalStructure(rho, tau, q):
 
                 if (accept):
                     return 1
+
 
     return 0
 
