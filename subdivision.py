@@ -10,7 +10,6 @@ class Cell:
         return self.length == other.length and self.center[0] == other.center[0] and self.center[1] == other.center[1]
 
 
-
 # Noli, your magic goes here
 def SubdivideCell(rho, origin_square, length_square, seeds=[]):
     """Returns all seeds in the cell
@@ -29,7 +28,7 @@ def SubdivideCell(rho, origin_square, length_square, seeds=[]):
     length_halfsquare = 0.5 * length_square
     target_seeds = (length_square ** 3) * rho
     if target_seeds <= 8:
-        np.random.seed(int(abs(np.sum(origin_square)*100)))
+        np.random.seed(int(abs(origin_square[0] * 7873 + origin_square[1] * 6269 + origin_square[2] * 2531)))
         # 1st case: the cell is a leaf
         shuffled_idx = np.random.permutation(8)
         min_samples = int(np.floor(target_seeds))
@@ -51,7 +50,7 @@ def SubdivideCell(rho, origin_square, length_square, seeds=[]):
 
 
 def __sample_new_point(origin_square, length_halfsquare, subidx):
-    #np.random.seed(100)
+    # np.random.seed(100)
     if subidx == 0:
         dx, dy, dz = [1, 1, 1]
     elif subidx == 1:
@@ -83,7 +82,7 @@ def GridCellEnclosing(q, coarse_level_length=2):
         coarse_level_length: size of the coarse cell
         returns : Cell
        """
-    #center = ((q // coarse_level_length) * coarse_level_length) + coarse_level_length / 2
+    # center = ((q // coarse_level_length) * coarse_level_length) + coarse_level_length / 2
     center = np.round(q / coarse_level_length) * coarse_level_length
     cell = Cell(center, coarse_level_length)
     return cell
@@ -120,14 +119,14 @@ def GatherSeeds(rho, q):
             query point
         returns : seed list
        """
-    #np.random.seed(100)
+    # np.random.seed(100)
     N = []
     visited = []
 
     cq = GridCellEnclosing(q)
     closest = np.array([np.inf, np.inf, np.inf])
 
-    neighborhood = [cq] # TwoRingNeighborhood(cq)
+    neighborhood = TwoRingNeighborhood(cq)
 
     for cell in neighborhood:
         visited.append(cell)
@@ -138,7 +137,7 @@ def GatherSeeds(rho, q):
                 closest = s
 
     cs = GridCellEnclosing(closest)
-    neighborhood = [cs] #TwoRingNeighborhood(cs)
+    neighborhood = TwoRingNeighborhood(cs)
     for cell in neighborhood:
         if cell not in visited:
             seeds = SubdivideCell(rho, cell.center, cell.length, [])
@@ -146,4 +145,3 @@ def GatherSeeds(rho, q):
     index = [i for i, s in enumerate(N) if s[0] == closest[0] and s[1] == closest[1] and s[2] == closest[2]][0]
     N.insert(0, N.pop(index))
     return N
-
