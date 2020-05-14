@@ -37,7 +37,8 @@ def save_list_cube(centers, tau, name):
     faces = []
     for s in centers:
         box = pymesh.generate_box_mesh(s - tau / 2, s + tau / 2)
+        ver_s = len(vertices)
         vertices.extend(box.vertices)
-        faces.extend(box.faces + len(faces))
+        faces.extend(box.faces + ver_s)
     mesh = pymesh.form_mesh(np.array(vertices), np.array(faces))
     pymesh.save_mesh("models/{}.obj".format(name), mesh)
