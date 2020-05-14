@@ -162,7 +162,7 @@ def GatherSeeds(rho, q):
 
     for cell in neighborhood:
         visited.append(cell)
-        seeds = SubdivideCell(rho, cell.center, cell.length)
+        seeds = SubdivideCell(rho, cell.center, cell.length, [])
         N.extend(seeds)
         for s in seeds:
             if (np.linalg.norm(closest - q) > np.linalg.norm(s - q)):
@@ -172,13 +172,14 @@ def GatherSeeds(rho, q):
     neighborhood = TwoRingNeighborhood(cs)
     for cell in neighborhood:
         if cell not in visited:
-            seeds = SubdivideCell(rho, cell.center, cell.length)
+            seeds = SubdivideCell(rho, cell.center, cell.length, [])
             N.extend(seeds)
-
+    index = [i for i, s in enumerate(N) if s[0] == closest[0] and s[1] == closest[1] and s[2] == closest[2]][0]
+    N.insert(0, N.pop(index))
     return N
 
 
-def EvalStructure(rho, tau, q, seeds=None):
+def EvalStructure(rho, tau, q):
     """Returns 1 if q is in a beam and 0 otherwise
 
             Parameters
@@ -192,8 +193,7 @@ def EvalStructure(rho, tau, q, seeds=None):
             returns : {0,1}
            """
 
-    # seeds = GatherSeeds(rho, q)
-    accept = False
+    seeds = GatherSeeds(rho, q)
 
     # for debug
 
@@ -228,3 +228,6 @@ class Cell:
     def __init__(self, center, length):
         self.center = center
         self.length = length
+
+    def __eq__(self, other):
+        return self.length == other.length and self.center[0] == other.center[0] and self.center[1] == other.center[1]

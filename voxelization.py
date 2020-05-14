@@ -4,13 +4,13 @@ from utils import visualize_cloud
 
 
 def voxelize_mesh():
-    mesh = load_mesh("models/diamond.obj")
-    grid = pymesh.VoxelGrid(5, mesh.dim)
+    mesh = load_mesh("models/cube.obj")
+    grid = pymesh.VoxelGrid(1, mesh.dim)
     grid.insert_mesh(mesh)
     grid.create_grid()
     out_mesh = grid.mesh
     centers = np.mean(out_mesh.vertices[out_mesh.elements], axis=1)
-    np.save("models/diamond_voxels.npy", centers)
+    np.save("models/cube_voxels.npy", centers)
     visualize_cloud(centers)
     # pymesh.save_mesh("models/voxel.obj", out_mesh)
 
