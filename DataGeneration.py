@@ -52,6 +52,30 @@ def CreateGrid2D(size, resolution):
 	return points
 
 
+def CreateRandomGrid3D(size, resolution):
+
+	points = []
+	nx = (resolution + 1)
+	ny = (resolution + 1)
+	nz = (resolution + 1)
+	x = np.linspace(0, size, num=nx, endpoint=True)
+	y = np.linspace(0, size, num=ny, endpoint=True)
+	z = np.linspace(0, size, num=nz, endpoint=True)
+	dist = size / resolution
+
+	np.random.seed(100)
+
+	for k in range(nz):
+			for j in range(ny):
+				for i in range(nx):
+					offset = dist * np.random.uniform(low=0.0, high=0.5, size=3)
+					points.append(np.array([x[i] + offset[0], y[j] + offset[2], z[k] + offset[2]]))
+
+
+	return points
+
+
+
 def CreateGrid3D(size, resolution):
 
 	points = []
@@ -64,9 +88,10 @@ def CreateGrid3D(size, resolution):
 	xv, yv = np.meshgrid(x, y)
 
 	for k in range(nz):
-		for i in range(nx):
 			for j in range(ny):
-				points.append(np.array([xv[i, j], yv[i, j], z[k]]))
+				for i in range(nx):
+					points.append(np.array([x[i], y[j], z[k]]))
+
 
 	return points
 
