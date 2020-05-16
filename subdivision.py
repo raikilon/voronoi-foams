@@ -2,6 +2,7 @@ import numpy as np
 
 g = np.mgrid[-2:3, -2:3, -2:3].T.reshape((125, 3))
 coarse_level_length = 1
+limit = [[0, 0, 0], [1, 1, 1]]
 
 
 # Noli, your magic goes here
@@ -91,6 +92,12 @@ def TwoRingNeighborhood(cell):
         returns : Cell list
        """
     neighborhood = cell + coarse_level_length * g
+    neighborhood = neighborhood[neighborhood[:, 0] >= limit[0][0]]
+    neighborhood = neighborhood[neighborhood[:, 1] >= limit[0][1]]
+    neighborhood = neighborhood[neighborhood[:, 2] >= limit[0][2]]
+    neighborhood = neighborhood[neighborhood[:, 0] <= limit[1][0]]
+    neighborhood = neighborhood[neighborhood[:, 1] <= limit[1][1]]
+    neighborhood = neighborhood[neighborhood[:, 2] <= limit[1][2]]
     return neighborhood.tolist()
 
 
