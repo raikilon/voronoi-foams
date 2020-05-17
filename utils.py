@@ -1,6 +1,7 @@
+import numpy as np
 import open3d as o3d
 import pymesh
-import numpy as np
+
 
 def visualize_cloud(points):
     """
