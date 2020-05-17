@@ -43,6 +43,8 @@ def subdivide_cell(rho, origin_square, length_square, seeds=[]):
 
 
 def __sample_new_point(origin_square, length_halfsquare, subidx):
+
+    # This beautiful shift trick is mine!!! Credit to princess of dirty coding :)
     dx, dy, dz = (-1) ** subidx, (-1) ** (subidx >> 1), (-1) ** (subidx >> 2)
     offset = (length_halfsquare / 2) * np.array([dx, dy, dz], dtype=float)
     random_offset = np.array([np.random.random(), np.random.random(), np.random.random()])
