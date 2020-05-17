@@ -1,9 +1,9 @@
 import numpy as np
-import matplotlib.pyplot as plt
 import open3d as o3d
+
 from subdivision import __sample_new_point
 
-
+# This is the same as the function in subdivision.py but it allows to give a density function for testing purposes
 def subdivide_square(origin_square, length_square, seeds, density_func):
     length_halfsquare = 0.5 * length_square
     rho = density_func(origin_square + length_halfsquare)

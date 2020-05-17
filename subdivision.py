@@ -2,10 +2,10 @@ import numpy as np
 
 g = np.mgrid[-2:3, -2:3, -2:3].T.reshape((125, 3))
 coarse_level_length = 1
+# limit = [[0, 0, 0], [1, 1, 1]]
+limit = [[0, 0, 0], [0, 0, 0]]
 
-
-# Noli, your magic goes here
-def SubdivideCell(rho, origin_square, length_square, seeds=[]):
+def subdivide_cell(rho, origin_square, length_square, seeds=[]):
     """Returns all seeds in the cell
 
         Parameters
@@ -38,63 +38,40 @@ def SubdivideCell(rho, origin_square, length_square, seeds=[]):
                 for offz in [-1, 1]:
                     offset = np.array([offx, offy, offz], dtype=float)
                     origin_subsquare = origin_square + offset * (length_halfsquare / 2)
-                    SubdivideCell(rho, origin_subsquare, length_halfsquare, seeds)
+                    subdivide_cell(rho, origin_subsquare, length_halfsquare, seeds)
     return seeds
 
 
 def __sample_new_point(origin_square, length_halfsquare, subidx):
-    # np.random.seed(100)
-    if subidx == 0:
-        dx, dy, dz = [1, 1, 1]
-    elif subidx == 1:
-        dx, dy, dz = [1, 1, -1]
-    elif subidx == 2:
-        dx, dy, dz = [1, -1, 1]
-    elif subidx == 3:
-        dx, dy, dz = [-1, 1, 1]
-    elif subidx == 4:
-        dx, dy, dz = [-1, -1, 1]
-    elif subidx == 5:
-        dx, dy, dz = [-1, 1, -1]
-    elif subidx == 6:
-        dx, dy, dz = [1, -1, -1]
-    elif subidx == 7:
-        dx, dy, dz = [-1, -1, -1]
+
+    # This beautiful shift trick is mine!!! Credit to princess of dirty coding :)
+    dx, dy, dz = (-1) ** subidx, (-1) ** (subidx >> 1), (-1) ** (subidx >> 2)
     offset = (length_halfsquare / 2) * np.array([dx, dy, dz], dtype=float)
     random_offset = np.array([np.random.random(), np.random.random(), np.random.random()])
     return origin_square + random_offset * (length_halfsquare / 2) + offset
 
 
-def GridCellEnclosing(q):
-    """Finds the coarse grid cell containing q. This grid refers the to seed grid not voxelization!!
-
-        Parameters
-        ----------
-        q: np.array([x,y,z])
-            query point
-        coarse_level_length: size of the coarse cell
-        returns : Cell
+def grid_cell_enclosing(q):
+    """Finds the coarse grid cell containing q. This grid refers the to seed grid not voxelization!
        """
-    # center = ((q // coarse_level_length) * coarse_level_length) + coarse_level_length / 2
     center = np.round(q / coarse_level_length) * coarse_level_length
 
     return center
 
 
-def TwoRingNeighborhood(cell):
-    """Returns all the cells in 2-ring neighborhood of the cell. Possibly 3D shape - diamond
-
-        Parameters
-        ----------
-        cell: Cell
-            a cell in the seed grid
-        returns : Cell list
-       """
+def two_ring_neighborhood(cell):
+    """Returns all the cells in 2-ring neighborhood of the cell. Possibly 3D shape - diamond"""
     neighborhood = cell + coarse_level_length * g
+    neighborhood = neighborhood[neighborhood[:, 0] >= limit[0][0]]
+    neighborhood = neighborhood[neighborhood[:, 1] >= limit[0][1]]
+    neighborhood = neighborhood[neighborhood[:, 2] >= limit[0][2]]
+    neighborhood = neighborhood[neighborhood[:, 0] <= limit[1][0]]
+    neighborhood = neighborhood[neighborhood[:, 1] <= limit[1][1]]
+    neighborhood = neighborhood[neighborhood[:, 2] <= limit[1][2]]
     return neighborhood.tolist()
 
 
-def GatherSeeds(rho, q):
+def gather_seeds(rho, q):
     """Returns all seeds that can influence q
 
         Parameters
@@ -105,28 +82,27 @@ def GatherSeeds(rho, q):
             query point
         returns : seed list
        """
-    # np.random.seed(100)
     N = []
     visited = []
 
-    cq = GridCellEnclosing(q)
+    cq = grid_cell_enclosing(q)
     closest = np.array([np.inf, np.inf, np.inf])
 
-    neighborhood = TwoRingNeighborhood(cq)
+    neighborhood = two_ring_neighborhood(cq)
 
     for cell in neighborhood:
         visited.append(cell)
-        seeds = SubdivideCell(rho, cell, coarse_level_length, [])
+        seeds = subdivide_cell(rho, cell, coarse_level_length, [])
         N.extend(seeds)
         for s in seeds:
-            if (np.linalg.norm(closest - q) > np.linalg.norm(s - q)):
+            if np.linalg.norm(closest - q) > np.linalg.norm(s - q):
                 closest = s
 
-    cs = GridCellEnclosing(closest)
-    neighborhood = TwoRingNeighborhood(cs)
+    cs = grid_cell_enclosing(closest)
+    neighborhood = two_ring_neighborhood(cs)
     for cell in neighborhood:
         if cell not in visited:
-            seeds = SubdivideCell(rho, cell, coarse_level_length, [])
+            seeds = subdivide_cell(rho, cell, coarse_level_length, [])
             N.extend(seeds)
     index = [i for i, s in enumerate(N) if s[0] == closest[0] and s[1] == closest[1] and s[2] == closest[2]][0]
     N.insert(0, N.pop(index))
