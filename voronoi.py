@@ -117,6 +117,8 @@ def eval_structure(rho, tau, q, seeds=None, bl_list=None):
                 beam radius
             q: np.array([x,y,z])
                 query point
+            seeds, bl_list are used for debug
+
             returns : {0,1}
            """
 
@@ -130,8 +132,6 @@ def eval_structure(rho, tau, q, seeds=None, bl_list=None):
             if bl is None:
                 continue
 
-            if bl_list is not None:
-                bl_list.append(bl)
             pl = closest_point_on_a_line(q, bl)
             # d = np.linalg.norm(pl - q)
             # print("distance d:{} from q:{} to pl:{} on line bl:{}".format(d, q, pl, bl))
